@@ -1,4 +1,22 @@
-window.addEventListener('DOMContentLoaded', () => {
+// Change "receipt-container" to your actual class name (keep the dot!)
+const receiptElement = document.querySelector('.receipt-container'); 
+
+if (receiptElement) {
+  html2canvas(receiptElement, {
+    useCORS: true,
+    scale: 2
+  }).then(canvas => {
+    const previewContainer = document.querySelector('.preview-area'); // or getElementById('preview')
+    if (previewContainer) {
+      previewContainer.innerHTML = '';
+      previewContainer.appendChild(canvas);
+    }
+  }).catch(err => {
+    console.error("Rendering error:", err);
+  });
+} else {
+  console.error("Could not find the receipt element to render!");
+}window.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generateBtn');
 
     if (generateBtn) {
