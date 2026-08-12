@@ -1,4 +1,53 @@
-// Change "receipt-container" to your actual class name (keep the dot!)
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Set current date automatically on load
+  const dateDisplay = document.getElementById("dateDisplay");
+  if (dateDisplay) {
+    const today = new Date();
+    dateDisplay.textContent = today.toLocaleDateString();
+  }
+
+  // 2. Attach click event listener safely
+  const generateBtn = document.getElementById("generateBtn");
+  if (generateBtn) {
+    generateBtn.addEventListener("click", buildPreview);
+  }
+});
+
+function buildPreview() {
+  // Grab Input Values
+  const clientVal = document.getElementById("clientInput").value.trim() || "N/A";
+  const itemVal = document.getElementById("itemInput").value.trim() || "N/A";
+  const rawAmount = document.getElementById("amountInput").value;
+  const parsedAmount = parseFloat(rawAmount);
+  const formattedAmount = isNaN(parsedAmount) ? "0.00" : parsedAmount.toFixed(2);
+
+  // Update Quote Card Text Nodes
+  document.getElementById("clientDisplay").textContent = clientVal;
+  document.getElementById("itemDisplay").textContent = itemVal;
+  document.getElementById("amountDisplay").textContent = formattedAmount;
+
+  // Render Target Elements
+  const quoteCard = document.getElementById("quoteCard");
+  const previewArea = document.getElementById("previewArea");
+
+  if (!quoteCard || !previewArea) {
+    console.error("Required DOM elements are missing.");
+    return;
+  }
+
+  // Generate Image with html2canvas
+  html2canvas(quoteCard, {
+    scale: 2,          // Sharp high-res canvas for mobile screens
+    useCORS: true,      // Allows cross-origin assets if needed
+    logging: false      // Clean output
+  }).then((canvas) => {
+    previewArea.innerHTML = ""; // Clear initial text
+    previewArea.appendChild(canvas); // Display canvas directly in DOM
+  }).catch((err) => {
+    console.error("html2canvas error:", err);
+    alert("Error rendering image preview. Check browser console.");
+  });
+}// Change "receipt-container" to your actual class name (keep the dot!)
 const receiptElement = document.querySelector('.receipt-container'); 
 
 if (receiptElement) {
