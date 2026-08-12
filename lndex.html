@@ -1,0 +1,580 @@
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Quote Generator</title>
+    <!-- Include html2canvas for receipt image downloading -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            color: #2c3e50;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        h2 {
+            font-size: 1rem;
+            color: #34495e;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 4px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .input-group input {
+            padding: 12px;
+            font-size: 0.95rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #3498db;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .half {
+            flex: 1;
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2ecc71;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3);
+        }
+
+        .primary-btn:active {
+            background-color: #27ae60;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .download-btn:active {
+            background-color: #2980b9;
+        }
+
+        /* Receipt Card Styles */
+        .receipt-card {
+            margin-top: 25px;
+            background: #ffffff;
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .receipt-header h3 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+        }
+
+        .receipt-header p {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 12px 0;
+        }
+
+        .receipt-body p {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin: 12px 0;
+        }
+
+        .payment-note {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1>⚡ Micro-Quote</h1>
+            <p>Instant Social-Commerce Receipts</p>
+        </header>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2>Seller Details</h2>
+            <div class="input-group">
+                <label for="businessName">Business / Seller Name</label>
+                <input type="text" id="businessName" placeholder="e.g., Jane's Fashion Shop">
+            </div>
+            <div class="input-group">
+                <label for="sellerPhone">Phone / WhatsApp</label>
+                <input type="text" id="sellerPhone" placeholder="e.g., +254 700 000000">
+            </div>
+
+            <h2>Customer Details</h2>
+            <div class="input-group">
+                <label for="clientName">Customer Name</label>
+                <input type="text" id="clientName" placeholder="e.g., Alex Smith">
+            </div>
+
+            <h2>Item Details</h2>
+            <div class="input-group">
+                <label for="itemDesc">Item / Service Description</label>
+                <input type="text" id="itemDesc" placeholder="e.g., Summer Dress - Blue">
+            </div>
+
+            <div class="row">
+                <div class="input-group half">
+                    <label for="itemQty">Qty</label>
+                    <input type="number" id="itemQty" value="1" min="1">
+                </div>
+                <div class="input-group half">
+                    <label for="itemPrice">Price ($)</label>
+                    <input type="number" id="itemPrice" placeholder="0.00">
+                </div>
+            </div>
+
+            <h2>Payment Info</h2>
+            <div class="input-group">
+                <label for="paymentMethod">Payment Method / Note</label>
+                <input type="text" id="paymentMethod" placeholder="e.g., M-Pesa / Bank Transfer / Cash">
+            </div>
+
+            <button type="button" id="generateBtn" class="primary-btn">Generate Receipt Preview ➔</button>
+        </section>
+
+        <!-- Receipt Preview Section -->
+        <div id="previewWrapper" style="display: none;">
+            <section id="receiptPreview" class="receipt-card">
+                <div class="receipt-header">
+                    <h3 id="prevBusiness">Business Name</h3>
+                    <p id="prevPhone">Phone</p>
+                </div>
+                <hr>
+                <div class="receipt-body">
+                    <p><strong>Customer:</strong> <span id="prevCustomer">-</span></p>
+                    <div class="receipt-item">
+                        <span id="prevItem">Item Description</span>
+                        <span id="prevQtyPrice">1 x $0.00</span>
+                    </div>
+                    <div class="receipt-total">
+                        <strong>Total Amount:</strong>
+                        <span id="prevTotal">$0.00</span>
+                    </div>
+                    <p class="payment-note"><strong>Payment:</strong> <span id="prevPayment">-</span></p>
+                </div>
+                <div class="receipt-footer">
+                    <p>Thank you for your business!</p>
+                    <small>Generated via Micro-Quote</small>
+                </div>
+            </section>
+
+            <button type="button" id="downloadBtn" class="download-btn">📲 Download Receipt Image</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var generateBtn = document.getElementById('generateBtn');
+            var downloadBtn = document.getElementById('downloadBtn');
+
+            // Generate Receipt logic
+            generateBtn.onclick = function() {
+                var businessName = document.getElementById('businessName').value || 'My Business';
+                var sellerPhone = document.getElementById('sellerPhone').value || 'N/A';
+                var clientName = document.getElementById('clientName').value || 'Valued Customer';
+                var itemDesc = document.getElementById('itemDesc').value || 'Product / Service';
+                
+                var itemQty = parseFloat(document.getElementById('itemQty').value) || 1;
+                var itemPrice = parseFloat(document.getElementById('itemPrice').value) || 0;
+                var paymentMethod = document.getElementById('paymentMethod').value || 'Pending';
+
+                var totalAmount = (itemQty * itemPrice).toFixed(2);
+
+                document.getElementById('prevBusiness').innerText = businessName;
+                document.getElementById('prevPhone').innerText = sellerPhone;
+                document.getElementById('prevCustomer').innerText = clientName;
+                document.getElementById('prevItem').innerText = itemDesc;
+                document.getElementById('prevQtyPrice').innerText = itemQty + ' x $' + itemPrice.toFixed(2);
+                document.getElementById('prevTotal').innerText = '$' + totalAmount;
+                document.getElementById('prevPayment').innerText = paymentMethod;
+
+                var wrapper = document.getElementById('previewWrapper');
+                wrapper.style.display = 'block';
+                wrapper.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            // Download Image logic using html2canvas
+            downloadBtn.onclick = function() {
+                var receiptElement = document.getElementById('receiptPreview');
+                
+                html2canvas(receiptElement).then(function(canvas) {
+                    var image = canvas.toDataURL("image/png");
+                    var link = document.createElement('a');
+                    link.download = 'receipt.png';
+                    link.href = image;
+                    link.click();
+                });
+            };
+        });
+    </script>
+</body>
+</html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Quote Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1>⚡ Micro-Quote</h1>
+            <p>Instant Social-Commerce Receipts</p>
+        </header>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2>Seller Details</h2>
+            <div class="input-group">
+                <label for="businessName">Business / Seller Name</label>
+                <input type="text" id="businessName" placeholder="e.g., Jane's Fashion Shop">
+            </div>
+            <div class="input-group">
+                <label for="sellerPhone">Phone / WhatsApp</label>
+                <input type="text" id="sellerPhone" placeholder="e.g., +254 700 000000">
+            </div>
+
+            <h2>Customer Details</h2>
+            <div class="input-group">
+                <label for="clientName">Customer Name</label>
+                <input type="text" id="clientName" placeholder="e.g., Alex Smith">
+            </div>
+
+            <h2>Item Details</h2>
+            <div class="input-group">
+                <label for="itemDesc">Item / Service Description</label>
+                <input type="text" id="itemDesc" placeholder="e.g., Summer Dress - Blue">
+            </div>
+
+            <div class="row">
+                <div class="input-group half">
+                    <label for="itemQty">Qty</label>
+                    <input type="number" id="itemQty" value="1" min="1">
+                </div>
+                <div class="input-group half">
+                    <label for="itemPrice">Price ($)</label>
+                    <input type="number" id="itemPrice" placeholder="0.00">
+                </div>
+            </div>
+
+            <h2>Payment Info</h2>
+            <div class="input-group">
+                <label for="paymentMethod">Payment Method / Note</label>
+                <input type="text" id="paymentMethod" placeholder="e.g., M-Pesa / Bank Transfer / Cash">
+            </div>
+
+            <button id="generateBtn" class="primary-btn">Generate Receipt Preview ➔</button>
+        </section>
+
+        <!-- Receipt Preview Section -->
+        <section id="receiptPreview" class="receipt-card" style="display: none;">
+            <div class="receipt-header">
+                <h3 id="prevBusiness">Business Name</h3>
+                <p id="prevPhone">Phone</p>
+            </div>
+            <hr>
+            <div class="receipt-body">
+                <p><strong>Customer:</strong> <span id="prevCustomer">-</span></p>
+                <div class="receipt-item">
+                    <span id="prevItem">Item Description</span>
+                    <span id="prevQtyPrice">1 x $0.00</span>
+                </div>
+                <div class="receipt-total">
+                    <strong>Total Amount:</strong>
+                    <span id="prevTotal">$0.00</span>
+                </div>
+                <p class="payment-note"><strong>Payment:</strong> <span id="prevPayment">-</span></p>
+            </div>
+            <div class="receipt-footer">
+                <p>Thank you for your business!</p>
+                <small>Generated via Micro-Quote</small>
+            </div>
+        </section><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Quote Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1>⚡ Micro-Quote</h1>
+            <p>Instant Social-Commerce Receipts</p>
+        </header>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2>Seller Details</h2>
+            <div class="input-group">
+                <label for="businessName">Business / Seller Name</label>
+                <input type="text" id="businessName" placeholder="e.g., Jane's Fashion Shop">
+            </div>
+            <div class="input-group">
+                <label for="sellerPhone">Phone / WhatsApp</label>
+                <input type="text" id="sellerPhone" placeholder="e.g., +254 700 000000">
+            </div>
+
+            <h2>Customer Details</h2>
+            <div class="input-group">
+                <label for="clientName">Customer Name</label>
+                <input type="text" id="clientName" placeholder="e.g., Alex Smith">
+            </div>
+
+            <h2>Item Details</h2>
+            <div class="input-group">
+                <label for="itemDesc">Item / Service Description</label>
+                <input type="text" id="itemDesc" placeholder="e.g., Summer Dress - Blue">
+            </div>
+
+            <div class="row">
+                <div class="input-group half">
+                    <label for="itemQty">Qty</label>
+                    <input type="number" id="itemQty" value="1" min="1">
+                </div>
+                <div class="input-group half">
+                    <label for="itemPrice">Price ($)</label>
+                    <input type="number" id="itemPrice" placeholder="0.00">
+                </div>
+            </div>
+
+            <h2>Payment Info</h2>
+            <div class="input-group">
+                <label for="paymentMethod">Payment Method / Note</label>
+                <input type="text" id="paymentMethod" placeholder="e.g., M-Pesa / Bank Transfer / Cash">
+            </div>
+
+            <button type="button" id="generateBtn" class="primary-btn">Generate Receipt Preview ➔</button>
+        </section>
+
+        <!-- Receipt Preview Section -->
+        <section id="receiptPreview" class="receipt-card" style="display: none;">
+            <div class="receipt-header">
+                <h3 id="prevBusiness">Business Name</h3>
+                <p id="prevPhone">Phone</p>
+            </div>
+            <hr>
+            <div class="receipt-body">
+                <p><strong>Customer:</strong> <span id="prevCustomer">-</span></p>
+                <div class="receipt-item">
+                    <span id="prevItem">Item Description</span>
+                    <span id="prevQtyPrice">1 x $0.00</span>
+                </div>
+                <div class="receipt-total">
+                    <strong>Total Amount:</strong>
+                    <span id="prevTotal">$0.00</span>
+                </div>
+                <p class="payment-note"><strong>Payment:</strong> <span id="prevPayment">-</span></p>
+            </div>
+            <div class="receipt-footer">
+                <p>Thank you for your business!</p>
+                <small>Generated via Micro-Quote</small>
+            </div>
+        </section>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html><!DOCTYPE html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-Quote Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1>⚡ Micro-Quote</h1>
+            <p>Instant Social-Commerce Receipts</p>
+        </header>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2>Seller Details</h2>
+            <div class="input-group">
+                <label for="businessName">Business / Seller Name</label>
+                <input type="text" id="businessName" placeholder="e.g., Jane's Fashion Shop">
+            </div>
+            <div class="input-group">
+                <label for="sellerPhone">Phone / WhatsApp</label>
+                <input type="text" id="sellerPhone" placeholder="e.g., +254 700 000000">
+            </div>
+
+            <h2>Customer Details</h2>
+            <div class="input-group">
+                <label for="clientName">Customer Name</label>
+                <input type="text" id="clientName" placeholder="e.g., Alex Smith">
+            </div>
+
+            <h2>Item Details</h2>
+            <div class="input-group">
+                <label for="itemDesc">Item / Service Description</label>
+                <input type="text" id="itemDesc" placeholder="e.g., Summer Dress - Blue">
+            </div>
+
+            <div class="row">
+                <div class="input-group half">
+                    <label for="itemQty">Qty</label>
+                    <input type="number" id="itemQty" value="1" min="1">
+                </div>
+                <div class="input-group half">
+                    <label for="itemPrice">Price ($)</label>
+                    <input type="number" id="itemPrice" placeholder="0.00">
+                </div>
+            </div>
+
+            <h2>Payment Info</h2>
+            <div class="input-group">
+                <label for="paymentMethod">Payment Method / Note</label>
+                <input type="text" id="paymentMethod" placeholder="e.g., M-Pesa / Bank Transfer / Cash">
+            </div>
+
+            <button id="generateBtn" class="primary-btn">Generate Receipt Preview ➔</button>
+        </section>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+</head>
+
+<body>
+  
+</body>
+
+</html>
