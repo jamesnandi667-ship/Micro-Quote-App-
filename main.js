@@ -1,4 +1,4 @@
-  // Register Service Worker for PWA (makes the app downloadable & offline-capable)
+// Register Service Worker for PWA Installation & Offline Support
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(() => console.log('Service Worker Registered'))
@@ -6,38 +6,123 @@ if ('serviceWorker' in navigator) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const clientInput = document.getElementById('clientName');
-  const itemInput = document.getElementById('itemDescription');
-  const amountInput = document.getElementById('amount');
+  const itemsContainer = document.getElementById('itemsContainer');
+  const addItemBtn = document.getElementById('addItemBtn');
   const generateBtn = document.getElementById('generateBtn');
+  const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+  const whatsappBtn = document.getElementById('whatsappBtn');
+  const logoInput = document.getElementById('businessLogo');
+  const logoPreview = document.getElementById('logoPreview');
 
-  const previewClient = document.getElementById('previewClient');
-  const previewItem = document.getElementById('previewItem');
-  const previewAmount = document.getElementById('previewAmount');
-  const quoteDate = document.getElementById('quoteDate');
-  const quoteCard = document.getElementById('quoteCard');
-  const canvasOutput = document.getElementById('canvasOutput');
+  let itemCounter = 0;
+  let logoBase64 = '';
 
-  // Set current date automatically
-  const today = new Date();
-  const dateString = today.toLocaleDateString('en-GB');
-  quoteDate.textContent = dateString;
+  // Set default current date
+  document.getElementById('docDate').textContent = new Date().toLocaleDateString('en-GB');
 
+  // Handle Logo Upload Preview
+  logoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        logoBase64 = event.target.result;
+        logoPreview.src = logoBase64;
+        logoPreview.classList.remove('logo-hide');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Function to create dynamic row
+  function createItemRow() {
+    itemCounter++;
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.id = `item-row-${itemCounter}`;
+    row.innerHTML = `
+      <input type="text" placeholder="Item description" class="item-desc">
+      <input type="number" placeholder="Qty" class="item-qty" value="1" min="1">
+      <input type="number" placeholder="Price" class="item-price" value="0" min="0">
+      <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
+    `;
+    itemsContainer.appendChild(row);
+  }
+
+  // Add initial item row on load
+  createItemRow();
+  addItemBtn.addEventListener('click', createItemRow);
+
+  // Generate Quotation Action
   generateBtn.addEventListener('click', () => {
-    // 1. Update Preview Text
-    const clientVal = clientInput.value.trim() || 'Client Name';
-    const itemVal = itemInput.value.trim() || 'Service / Item details';
-    const amountVal = parseFloat(amountInput.value) || 0;
+    const bName = document.getElementById('businessName').value.trim() || 'Your Business Name';
+    const payInfo = document.getElementById('paymentDetails').value.trim();
+    const cName = document.getElementById('clientName').value.trim() || 'Client Name';
+    const currency = document.getElementById('currencySelect').value;
+    const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
 
-    previewClient.textContent = clientVal;
-    previewItem.textContent = itemVal;
-    previewAmount.textContent = `$${amountVal.toFixed(2)}`;
+    // Render Header Info
+    document.getElementById('docBusinessName').textContent = bName;
+    document.getElementById('docPaymentInfo').textContent = payInfo ? `Payment: ${payInfo}` : '';
+    document.getElementById('docClientName').textContent = cName;
 
-    // 2. Render Card to Canvas
-    canvasOutput.innerHTML = ''; // Clear previous canvas
+    // Process Table Items
+    const docTableBody = document.getElementById('docTableBody');
+    docTableBody.innerHTML = '';
 
-    html2canvas(quoteCard, { scale: 2 }).then(canvas => {
-      canvasOutput.appendChild(canvas);
+    const rows = itemsContainer.querySelectorAll('.item-row');
+    let subtotal = 0;
+
+    rows.forEach(row => {
+      const desc = row.querySelector('.item-desc').value.trim() || 'Service / Product';
+      const qty = parseFloat(row.querySelector('.item-qty').value) || 1;
+      const price = parseFloat(row.querySelector('.item-price').value) || 0;
+      const rowTotal = qty * price;
+      subtotal += rowTotal;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${desc}</td>
+        <td>${qty}</td>
+        <td>${currency} ${price.toFixed(2)}</td>
+        <td>${currency} ${rowTotal.toFixed(2)}</td>
+      `;
+      docTableBody.appendChild(tr);
     });
+
+    // Calculate Totals
+    const taxAmount = (subtotal * taxRate) / 100;
+    const grandTotal = subtotal + taxAmount;
+
+    document.getElementById('docSubtotal').textContent = `${currency} ${subtotal.toFixed(2)}`;
+    document.getElementById('docTax').textContent = `${currency} ${taxAmount.toFixed(2)}`;
+    document.getElementById('docGrandTotal').textContent = `${currency} ${grandTotal.toFixed(2)}`;
+
+    // Scroll smoothly to preview
+    document.querySelector('.preview-section').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Download PDF Action
+  downloadPdfBtn.addEventListener('click', () => {
+    const element = document.getElementById('quoteDocument');
+    const opt = {
+      margin:       0.5,
+      filename:     'Quotation_QuickQuote.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  });
+
+  // Share via WhatsApp Action
+  whatsappBtn.addEventListener('click', () => {
+    const cName = document.getElementById('docClientName').textContent;
+    const total = document.getElementById('docGrandTotal').textContent;
+    const bName = document.getElementById('docBusinessName').textContent;
+
+    const text = `Hi ${cName}, here is your official quotation from ${bName}.\n\n*Grand Total:* ${total}\n\nThank you for doing business with us!`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   });
 });
