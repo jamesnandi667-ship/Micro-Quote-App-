@@ -3,44 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickQuote Pro</title>
+  <title>QuickQuote Pro - Invoicing Engine</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2563eb">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1486/1486433.png">
+  
+  <!-- html2pdf Library for Crisp PDF Exports -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- Google AdSense Placeholder Script -->
+  <!-- Replace ca-pub-XXXXXXXXXXXXXXXX with your real AdSense Publisher ID once approved -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body>
 
   <div class="app-container">
+    <!-- Top Header & Pro Status -->
     <header class="app-header">
-      <h1>QuickQuote <span>PRO</span></h1>
-      <p>Professional Invoicing & Quotation Engine</p>
+      <h1>QuickQuote <span id="appBadge">FREE</span></h1>
+      <p>Professional Invoices, Receipts & Quotations</p>
     </header>
 
+    <!-- Ad Unit 1: Top Banner Ad -->
+    <div class="ad-container">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1234567890"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
     <main class="form-section">
-      <!-- Business Info & Logo -->
+      <!-- Document Mode -->
+      <fieldset class="card">
+        <legend>Document Type</legend>
+        <div class="form-group">
+          <label for="docTypeSelect">Select Document Type</label>
+          <select id="docTypeSelect">
+            <option value="QUOTATION">QUOTATION</option>
+            <option value="TAX INVOICE">TAX INVOICE</option>
+            <option value="CASH RECEIPT">CASH RECEIPT</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <!-- Business Details (Pro Lock Indicator) -->
       <fieldset class="card">
         <legend>Business Details</legend>
         <div class="form-group">
           <label for="businessName">Your Business Name</label>
-          <input type="text" id="businessName" placeholder="e.g. Acme Tech Solutions">
+          <input type="text" id="businessName" placeholder="e.g. Acme Enterprise">
         </div>
-        <div class="form-group">
-          <label for="businessLogo">Upload Logo</label>
+        
+        <!-- Locked Feature for Premium -->
+        <div class="form-group pro-feature-container">
+          <label for="businessLogo">Upload Business Logo <span class="pro-tag">PRO</span></label>
           <input type="file" id="businessLogo" accept="image/*">
         </div>
+
         <div class="form-group">
           <label for="paymentDetails">Payment Info (M-Pesa / Bank)</label>
-          <input type="text" id="paymentDetails" placeholder="e.g. Buy Goods Till: 123456">
+          <input type="text" id="paymentDetails" placeholder="e.g. Buy Goods Till: 123456 or Paybill: 400200 Account: 07XX">
         </div>
       </fieldset>
 
-      <!-- Client & Currency Settings -->
+      <!-- Client & Currency -->
       <fieldset class="card">
         <legend>Client & Settings</legend>
         <div class="form-group">
-          <label for="clientName">Client Name</label>
+          <label for="clientName">Client / Customer Name</label>
           <input type="text" id="clientName" placeholder="e.g. Jane Doe">
         </div>
         <div class="form-row">
@@ -58,21 +92,25 @@
             <input type="number" id="taxRate" value="0" min="0" max="100">
           </div>
         </div>
+        <div class="form-group">
+          <label for="discountRate">Discount (%) <span class="pro-tag">PRO</span></label>
+          <input type="number" id="discountRate" value="0" min="0" max="100">
+        </div>
       </fieldset>
 
-      <!-- Dynamic Items -->
+      <!-- Items Section -->
       <fieldset class="card">
         <legend>Items & Services</legend>
         <div id="itemsContainer"></div>
         <button type="button" id="addItemBtn" class="btn-secondary">+ Add Item</button>
       </fieldset>
 
-      <button id="generateBtn" class="btn-primary">Generate Quotation</button>
+      <button id="generateBtn" class="btn-primary">Generate Document</button>
     </main>
 
     <!-- Document Preview Card -->
     <section class="preview-section">
-      <h2>Quotation Document</h2>
+      <h2>Document Preview</h2>
       <div class="quote-document" id="quoteDocument">
         <div class="doc-header">
           <div class="brand-info">
@@ -81,7 +119,7 @@
             <p id="docPaymentInfo"></p>
           </div>
           <div class="doc-meta">
-            <h1 class="doc-title">QUOTATION</h1>
+            <h1 class="doc-title" id="docTypeTitle">QUOTATION</h1>
             <p><strong>Date:</strong> <span id="docDate">--/--/----</span></p>
           </div>
         </div>
@@ -105,24 +143,62 @@
         <div class="doc-summary">
           <p><span>Subtotal:</span> <strong id="docSubtotal">0.00</strong></p>
           <p><span>Tax / VAT:</span> <strong id="docTax">0.00</strong></p>
+          <p><span>Discount:</span> <strong id="docDiscount">0.00</strong></p>
           <h3><span>Grand Total:</span> <strong id="docGrandTotal">0.00</strong></h3>
         </div>
       </div>
 
+      <!-- Universal Export Actions -->
       <div class="export-actions">
         <button id="downloadPdfBtn" class="btn-success">📄 Download PDF</button>
-        <button id="whatsappBtn" class="btn-whatsapp">💬 Share via WhatsApp</button>
+        <button id="universalShareBtn" class="btn-share">🔗 Share via Any App</button>
       </div>
     </section>
 
-    <!-- Monetization / Premium Section -->
+    <!-- Ad Unit 2: Bottom Banner Ad -->
+    <div class="ad-container" style="margin-top:20px;">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="0987654321"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <!-- M-Pesa / Buy Me Coffee Premium Upgrade Modal Trigger -->
     <div class="premium-card">
-      <h3>⭐ Unlock Pro Business Suite</h3>
-      <p>Want custom cloud back-ups, client database management, and custom domain deployment?</p>
-      <button class="btn-gold" onclick="alert('Contact developer via WhatsApp or M-Pesa to activate Pro Custom License!')">Upgrade / Support App</button>
+      <h3>⭐ Upgrade to QuickQuote PRO</h3>
+      <p>Unlock Logo Uploads, Discounts, Unlimited Saved Quotes & Remove Ads via M-Pesa!</p>
+      <button class="btn-gold" id="openMpesaModalBtn">Upgrade via M-Pesa (KSh 100)</button>
+    </div>
+  </div>
+
+  <!-- M-PESA PAYMENT MODAL -->
+  <div id="mpesaModal" class="modal-overlay">
+    <div class="modal-content">
+      <span class="modal-close" id="closeMpesaModal">&times;</span>
+      <h2><span style="color:#16a34a">M-PESA</span> Express Support</h2>
+      <p>Support the developer or unlock full Pro features in 1 step:</p>
+      
+      <div class="mpesa-instructions">
+        <ol>
+          <li>Go to M-Pesa on your phone.</li>
+          <li>Select <strong>Send Money</strong> or <strong>Lipa na M-Pesa</strong>.</li>
+          <li>Enter Number / Till: <strong style="color:#2563eb;">07XXXXXXXX / Till 123456</strong></li>
+          <li>Amount: <strong>KSh 100</strong> (or any amount to support).</li>
+        </ol>
+      </div>
+
+      <div class="form-group">
+        <label for="mpesaCodeInput">Enter M-Pesa Transaction Code to Activate:</label>
+        <input type="text" id="mpesaCodeInput" placeholder="e.g. QX12345678" style="text-transform: uppercase;">
+      </div>
+
+      <button id="verifyMpesaBtn" class="btn-success">Activate Pro Features Now</button>
     </div>
   </div>
 
   <script src="main.js"></script>
 </body>
-</html>
+  </html>
