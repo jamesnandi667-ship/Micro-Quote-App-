@@ -3,202 +3,225 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickQuote Pro - Invoicing Engine</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+  <title>QuickQuote PRO - Instant Business Documents</title>
+  
+  <!-- Web App Manifest for PWA -->
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1486/1486433.png">
+  <link rel="icon" type="image/png" href="./icon-192.png">
   
-  <!-- html2pdf Library for Crisp PDF Exports -->
+  <!-- html2pdf Library for Client-side PDF Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  
-  <!-- Google AdSense Placeholder Script -->
-  <!-- Replace ca-pub-XXXXXXXXXXXXXXXX with your real AdSense Publisher ID once approved -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #16a34a;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.5; padding: 16px; max-width: 800px; margin: 0 auto; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { font-size: 1.5rem; color: var(--primary); }
+    .badge { background: #e0e7ff; color: var(--primary-dark); font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 12px; }
+
+    .card { background: var(--card-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; color: var(--primary-dark); }
+
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn { display: inline-block; background: var(--primary); color: white; border: none; padding: 12px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; text-align: center; width: 100%; font-size: 0.95rem; }
+    .btn:active { background: var(--primary-dark); }
+    .btn-secondary { background: #64748b; }
+    .btn-pro { background: var(--accent); }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+
+    .item-row { display: flex; gap: 8px; margin-bottom: 8px; }
+
+    /* Document Preview Styling */
+    .preview-section { margin-top: 24px; }
+    #quoteDocument { background: white; border: 1px solid #cbd5e1; padding: 24px; border-radius: 8px; }
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .doc-title { font-size: 1.75rem; font-weight: 800; color: #0f172a; text-transform: uppercase; }
+    .doc-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .doc-table th, .doc-table td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .doc-table th { background: #f1f5f9; font-weight: 700; }
+    .doc-totals { width: 100%; max-width: 300px; margin-left: auto; margin-top: 16px; }
+    .doc-totals div { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9rem; }
+    .doc-totals .grand-total { font-weight: 800; font-size: 1.1rem; border-top: 2px solid var(--text); padding-top: 8px; margin-top: 4px; color: var(--primary-dark); }
+
+    /* Modal Overlay */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
+    .modal { background: white; border-radius: 12px; padding: 20px; max-width: 400px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal h3 { color: var(--accent); margin-bottom: 12px; }
+    .modal ol { margin-left: 20px; margin-bottom: 16px; font-size: 0.9rem; }
+    .modal li { margin-bottom: 6px; }
+
+    .logo-hide { display: none; }
+    #logoPreview { max-height: 60px; max-width: 150px; margin-bottom: 12px; object-fit: contain; }
+  </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Top Header & Pro Status -->
-    <header class="app-header">
-      <h1>QuickQuote <span id="appBadge">FREE</span></h1>
-      <p>Professional Invoices, Receipts & Quotations</p>
-    </header>
+  <header>
+    <h1>QuickQuote PRO</h1>
+    <span id="appBadge" class="badge">FREE VERSION</span>
+  </header>
 
-    <!-- Ad Unit 1: Top Banner Ad -->
-    <div class="ad-container">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-           data-ad-slot="1234567890"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-
-    <main class="form-section">
-      <!-- Document Mode -->
-      <fieldset class="card">
-        <legend>Document Type</legend>
-        <div class="form-group">
-          <label for="docTypeSelect">Select Document Type</label>
-          <select id="docTypeSelect">
-            <option value="QUOTATION">QUOTATION</option>
-            <option value="TAX INVOICE">TAX INVOICE</option>
-            <option value="CASH RECEIPT">CASH RECEIPT</option>
-          </select>
-        </div>
-      </fieldset>
-
-      <!-- Business Details (Pro Lock Indicator) -->
-      <fieldset class="card">
-        <legend>Business Details</legend>
-        <div class="form-group">
-          <label for="businessName">Your Business Name</label>
-          <input type="text" id="businessName" placeholder="e.g. Acme Enterprise">
-        </div>
-        
-        <!-- Locked Feature for Premium -->
-        <div class="form-group pro-feature-container">
-          <label for="businessLogo">Upload Business Logo <span class="pro-tag">PRO</span></label>
-          <input type="file" id="businessLogo" accept="image/*">
-        </div>
-
-        <div class="form-group">
-          <label for="paymentDetails">Payment Info (M-Pesa / Bank)</label>
-          <input type="text" id="paymentDetails" placeholder="e.g. Buy Goods Till: 123456 or Paybill: 400200 Account: 07XX">
-        </div>
-      </fieldset>
-
-      <!-- Client & Currency -->
-      <fieldset class="card">
-        <legend>Client & Settings</legend>
-        <div class="form-group">
-          <label for="clientName">Client / Customer Name</label>
-          <input type="text" id="clientName" placeholder="e.g. Jane Doe">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="currencySelect">Currency</label>
-            <select id="currencySelect">
-              <option value="KSh">KES (KSh)</option>
-              <option value="$">USD ($)</option>
-              <option value="€">EUR (€)</option>
-              <option value="£">GBP (£)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="taxRate">Tax / VAT (%)</label>
-            <input type="number" id="taxRate" value="0" min="0" max="100">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="discountRate">Discount (%) <span class="pro-tag">PRO</span></label>
-          <input type="number" id="discountRate" value="0" min="0" max="100">
-        </div>
-      </fieldset>
-
-      <!-- Items Section -->
-      <fieldset class="card">
-        <legend>Items & Services</legend>
-        <div id="itemsContainer"></div>
-        <button type="button" id="addItemBtn" class="btn-secondary">+ Add Item</button>
-      </fieldset>
-
-      <button id="generateBtn" class="btn-primary">Generate Document</button>
-    </main>
-
-    <!-- Document Preview Card -->
-    <section class="preview-section">
-      <h2>Document Preview</h2>
-      <div class="quote-document" id="quoteDocument">
-        <div class="doc-header">
-          <div class="brand-info">
-            <img id="logoPreview" class="logo-hide" alt="Company Logo">
-            <h2 id="docBusinessName">Your Business Name</h2>
-            <p id="docPaymentInfo"></p>
-          </div>
-          <div class="doc-meta">
-            <h1 class="doc-title" id="docTypeTitle">QUOTATION</h1>
-            <p><strong>Date:</strong> <span id="docDate">--/--/----</span></p>
-          </div>
-        </div>
-        <hr>
-        <div class="doc-client">
-          <p><strong>Billed To:</strong> <span id="docClientName">Client Name</span></p>
-        </div>
-
-        <table class="doc-table">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Qty</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody id="docTableBody"></tbody>
-        </table>
-
-        <div class="doc-summary">
-          <p><span>Subtotal:</span> <strong id="docSubtotal">0.00</strong></p>
-          <p><span>Tax / VAT:</span> <strong id="docTax">0.00</strong></p>
-          <p><span>Discount:</span> <strong id="docDiscount">0.00</strong></p>
-          <h3><span>Grand Total:</span> <strong id="docGrandTotal">0.00</strong></h3>
-        </div>
-      </div>
-
-      <!-- Universal Export Actions -->
-      <div class="export-actions">
-        <button id="downloadPdfBtn" class="btn-success">📄 Download PDF</button>
-        <button id="universalShareBtn" class="btn-share">🔗 Share via Any App</button>
-      </div>
-    </section>
-
-    <!-- Ad Unit 2: Bottom Banner Ad -->
-    <div class="ad-container" style="margin-top:20px;">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-           data-ad-slot="0987654321"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-
-    <!-- M-Pesa / Buy Me Coffee Premium Upgrade Modal Trigger -->
-    <div class="premium-card">
-      <h3>⭐ Upgrade to QuickQuote PRO</h3>
-      <p>Unlock Logo Uploads, Discounts, Unlimited Saved Quotes & Remove Ads via M-Pesa!</p>
-      <button class="btn-gold" id="openMpesaModalBtn">Upgrade via M-Pesa (KSh 100)</button>
-    </div>
-  </div>
-
-  <!-- M-PESA PAYMENT MODAL -->
-  <div id="mpesaModal" class="modal-overlay">
-    <div class="modal-content">
-      <span class="modal-close" id="closeMpesaModal">&times;</span>
-      <h2><span style="color:#16a34a">M-PESA</span> Express Support</h2>
-      <p>Support the developer or unlock full Pro features in 1 step:</p>
-      
-      <div class="mpesa-instructions">
-        <ol>
-          <li>Go to M-Pesa on your phone.</li>
-          <li>Select <strong>Send Money</strong> or <strong>Lipa na M-Pesa</strong>.</li>
-          <li>Enter Number / Till: <strong style="color:#2563eb;">07XXXXXXXX / Till 123456</strong></li>
-          <li>Amount: <strong>KSh 100</strong> (or any amount to support).</li>
-        </ol>
-      </div>
-
+  <!-- Document Creator Form -->
+  <div class="card">
+    <div class="card-title">1. Document Details</div>
+    
+    <div class="grid-2">
       <div class="form-group">
-        <label for="mpesaCodeInput">Enter M-Pesa Transaction Code to Activate:</label>
-        <input type="text" id="mpesaCodeInput" placeholder="e.g. QX12345678" style="text-transform: uppercase;">
+        <label for="docTypeSelect">Document Type</label>
+        <select id="docTypeSelect">
+          <option value="QUOTATION">Quotation</option>
+          <option value="INVOICE">Invoice</option>
+          <option value="RECEIPT">Receipt</option>
+        </select>
       </div>
+      <div class="form-group">
+        <label for="currencySelect">Currency</label>
+        <select id="currencySelect">
+          <option value="KSh">KSh (KES)</option>
+          <option value="$">USD ($)</option>
+          <option value="€">EUR (€)</option>
+          <option value="£">GBP (£)</option>
+        </select>
+      </div>
+    </div>
 
-      <button id="verifyMpesaBtn" class="btn-success">Activate Pro Features Now</button>
+    <div class="form-group">
+      <label for="businessName">Your Business Name</label>
+      <input type="text" id="businessName" placeholder="e.g. Nandi Tech Solutions">
+    </div>
+
+    <div class="form-group">
+      <label for="businessLogo">Upload Logo <span style="font-size: 0.75rem; color: #16a34a;">(PRO)</span></label>
+      <input type="file" id="businessLogo" accept="image/*">
+    </div>
+
+    <div class="form-group">
+      <label for="clientName">Client Name / Business</label>
+      <input type="text" id="clientName" placeholder="e.g. Acme Corp">
+    </div>
+
+    <div class="form-group">
+      <label for="paymentDetails">Payment Info / M-Pesa Till / Bank Details</label>
+      <input type="text" id="paymentDetails" placeholder="e.g. Send Money: 0748680967">
     </div>
   </div>
 
-  <script src="main.js"></script>
+  <!-- Line Items -->
+  <div class="card">
+    <div class="card-title">2. Line Items</div>
+    <div id="itemsContainer"></div>
+    <button type="button" id="addItemBtn" class="btn btn-outline" style="margin-top: 8px;">+ Add Item Row</button>
+  </div>
+
+  <!-- Tax & Discount -->
+  <div class="card">
+    <div class="card-title">3. Adjustments</div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label for="taxRate">VAT / Tax (%)</label>
+        <input type="number" id="taxRate" value="0" min="0">
+      </div>
+      <div class="form-group">
+        <label for="discountRate">Discount (%)</label>
+        <input type="number" id="discountRate" value="0" min="0">
+      </div>
+    </div>
+    <button type="button" id="generateBtn" class="btn" style="margin-top: 8px;">Generate Document Preview</button>
+  </div>
+
+  <!-- Upgrade Banner -->
+  <div class="card" style="border: 1px solid #16a34a; background: #f0fdf4;">
+    <div class="card-title" style="color: #15803d; border-bottom-color: #bbf7d0;">⭐ Upgrade to PRO</div>
+    <p style="font-size: 0.85rem; margin-bottom: 12px; color: #166534;">
+      Unlock Logo branding, direct PDF downloads, watermark removal, and custom receipt layouts.
+    </p>
+    <button type="button" id="openMpesaModalBtn" class="btn btn-pro">Unlock PRO via M-Pesa (KSh 100)</button>
+  </div>
+
+  <!-- Generated Document Section -->
+  <div class="preview-section">
+    <div id="quoteDocument">
+      <div class="doc-header">
+        <div>
+          <img id="logoPreview" class="logo-hide" alt="Business Logo">
+          <h2 id="docBusinessName" style="color: #0f172a; font-size: 1.25rem;">Your Business Name</h2>
+          <p id="docPaymentInfo" style="font-size: 0.8rem; color: #64748b; margin-top: 4px;"></p>
+        </div>
+        <div style="text-align: right;">
+          <div id="docTypeTitle" class="doc-title">QUOTATION</div>
+          <p style="font-size: 0.85rem; color: #64748b;">Date: <span id="docDate"></span></p>
+          <p style="font-size: 0.85rem; color: #0f172a; font-weight: 600; margin-top: 4px;">For: <span id="docClientName">Client Name</span></p>
+        </div>
+      </div>
+
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="docTableBody">
+          <!-- Dynamic Items Populated Here -->
+        </tbody>
+      </table>
+
+      <div class="doc-totals">
+        <div><span>Subtotal:</span><span id="docSubtotal">KSh 0.00</span></div>
+        <div><span>VAT / Tax:</span><span id="docTax">KSh 0.00</span></div>
+        <div><span>Discount:</span><span id="docDiscount">KSh 0.00</span></div>
+        <div class="grand-total"><span>Grand Total:</span><span id="docGrandTotal">KSh 0.00</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 16px;">
+      <button type="button" id="downloadPdfBtn" class="btn btn-secondary">📥 Download PDF</button>
+      <button type="button" id="universalShareBtn" class="btn">📱 Share Document</button>
+    </div>
+  </div>
+
+  <!-- M-Pesa Modal -->
+  <div id="mpesaModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Unlock QuickQuote PRO</h3>
+      <p style="font-size: 0.85rem; color: #475569; margin-bottom: 12px;">Send KSh 100 via M-Pesa to activate instant PRO access:</p>
+      <ol>
+        <li>Go to M-Pesa $\rightarrow$ Send Money</li>
+        <li>Enter Phone Number: <strong style="color:#2563eb;">0748680967</strong></li>
+        <li>Amount: <strong>KSh 100</strong></li>
+        <li>Enter M-Pesa PIN and send</li>
+      </ol>
+      <div class="form-group">
+        <label for="mpesaCodeInput">Enter M-Pesa Transaction Code:</label>
+        <input type="text" id="mpesaCodeInput" placeholder="e.g. QA12345678" style="text-transform: uppercase;">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
+        <button type="button" id="verifyMpesaBtn" class="btn btn-pro" style="flex:2;">Verify Code</button>
+        <button type="button" id="closeMpesaModal" class="btn btn-secondary" style="flex:1;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="./main.js?v=6"></script>
 </body>
-  </html>
+            </html>
