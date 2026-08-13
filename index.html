@@ -5,53 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickQuote Express</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1486/1486433.png">
 </head>
 <body>
 
-  <div class="app-container">
-    <h2>QuickQuote Express</h2>
-
-    <!-- Form Section -->
-    <div class="form-card">
-      <label for="clientInput">Client Name</label>
-      <input type="text" id="clientInput" placeholder="e.g. John Doe">
-
-      <label for="itemInput">Item / Service</label>
-      <input type="text" id="itemInput" placeholder="e.g. Graphic Design Services">
-
-      <label for="amountInput">Amount ($)</label>
-      <input type="number" id="amountInput" placeholder="e.g. 250">
-
-      <button id="generateBtn" type="button">Generate Preview</button>
+  <div class="container">
+    <h1>QuickQuote Express</h1>
+    
+    <div class="card">
+      <div class="form-group">
+        <label for="clientName">Client Name</label>
+        <input type="text" id="clientName" placeholder="e.g. John Doe">
+      </div>
+      
+      <div class="form-group">
+        <label for="itemDescription">Item / Service</label>
+        <input type="text" id="itemDescription" placeholder="e.g. Logo Design">
+      </div>
+      
+      <div class="form-group">
+        <label for="amount">Amount ($)</label>
+        <input type="number" id="amount" placeholder="e.g. 150">
+      </div>
+      
+      <button id="generateBtn">Generate Preview</button>
     </div>
 
-    <!-- Live Quote Box -->
-    <div id="quoteCard" class="quote-card">
+    <!-- Live Preview Card -->
+    <div class="quote-card" id="quoteCard">
       <div class="quote-header">
-        <h3>QUOTATION</h3>
-        <span id="dateDisplay"></span>
+        <h2>QUOTATION</h2>
+        <span class="date" id="quoteDate">--/--/----</span>
       </div>
-      <hr class="divider">
-      <div class="quote-details">
-        <p><strong>Billed To:</strong> <span id="clientDisplay">---</span></p>
-        <p><strong>Description:</strong> <span id="itemDisplay">---</span></p>
-        <div class="total-box">
-          <span>Total Due:</span>
-          <span class="total-amount">$<span id="amountDisplay">0.00</span></span>
-        </div>
+      <hr>
+      <div class="quote-body">
+        <p><strong>Billed To:</strong> <span id="previewClient">Client Name</span></p>
+        <p><strong>Description:</strong> <span id="previewItem">Service / Item details</span></p>
+      </div>
+      <hr class="dashed">
+      <div class="quote-footer">
+        <h3>Total Due:</h3>
+        <h3 class="total-amount" id="previewAmount">$0.00</h3>
       </div>
     </div>
 
-    <!-- Output Preview Section -->
-    <div class="preview-card">
+    <!-- Canvas Preview Section -->
+    <div class="canvas-container">
       <h3>Generated Image Preview</h3>
-      <div id="previewArea">
-        <p class="placeholder-text">Your generated quote image will appear here.</p>
-      </div>
+      <div id="canvasOutput"></div>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
