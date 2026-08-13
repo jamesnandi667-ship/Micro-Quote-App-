@@ -3,62 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickQuote Express</title>
+  <title>QuickQuote Pro</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2563eb">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1486/1486433.png">
+  <!-- html2pdf Library for crisp PDF Exports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-  <div class="container">
-    <h1>QuickQuote Express</h1>
-    
-    <div class="card">
-      <div class="form-group">
-        <label for="clientName">Client Name</label>
-        <input type="text" id="clientName" placeholder="e.g. John Doe">
-      </div>
-      
-      <div class="form-group">
-        <label for="itemDescription">Item / Service</label>
-        <input type="text" id="itemDescription" placeholder="e.g. Logo Design">
-      </div>
-      
-      <div class="form-group">
-        <label for="amount">Amount ($)</label>
-        <input type="number" id="amount" placeholder="e.g. 150">
-      </div>
-      
-      <button id="generateBtn">Generate Preview</button>
-    </div>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>QuickQuote <span>PRO</span></h1>
+      <p>Professional Invoicing & Quotation Engine</p>
+    </header>
 
-    <!-- Live Preview Card -->
-    <div class="quote-card" id="quoteCard">
-      <div class="quote-header">
-        <h2>QUOTATION</h2>
-        <span class="date" id="quoteDate">--/--/----</span>
-      </div>
-      <hr>
-      <div class="quote-body">
-        <p><strong>Billed To:</strong> <span id="previewClient">Client Name</span></p>
-        <p><strong>Description:</strong> <span id="previewItem">Service / Item details</span></p>
-      </div>
-      <hr class="dashed">
-      <div class="quote-footer">
-        <h3>Total Due:</h3>
-        <h3 class="total-amount" id="previewAmount">$0.00</h3>
-      </div>
-    </div>
+    <main class="form-section">
+      <!-- Business Info & Logo -->
+      <fieldset class="card">
+        <legend>Business Details</legend>
+        <div class="form-group">
+          <label for="businessName">Your Business Name</label>
+          <input type="text" id="businessName" placeholder="e.g. Acme Tech Solutions">
+        </div>
+        <div class="form-group">
+          <label for="businessLogo">Upload Logo</label>
+          <input type="file" id="businessLogo" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label for="paymentDetails">Payment Info (M-Pesa / Bank)</label>
+          <input type="text" id="paymentDetails" placeholder="e.g. Buy Goods Till: 123456">
+        </div>
+      </fieldset>
 
-    <!-- Canvas Preview Section -->
-    <div class="canvas-container">
-      <h3>Generated Image Preview</h3>
-      <div id="canvasOutput"></div>
-    </div>
+      <!-- Client & Currency Info -->
+      <fieldset class="card">
+        <legend>Client & Settings</legend>
+        <div class="form-group">
+          <label for="clientName">Client Name</label>
+          <input type="text" id="clientName" placeholder="e.g. Jane Doe">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="currencySelect">Currency</label>
+            <select id="currencySelect">
+              <option value="KSh">KES (KSh)</option>
+              <option value="$">USD ($)</option>
+              <option value="€">EUR (€)</option>
+              <option value="£">GBP (£)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taxRate">Tax / VAT (%)</label>
+            <input type="number" id="taxRate" value="0" min="0" max="100">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Multi-Item Table -->
+      <fieldset class="card">
+        <legend>Items & Services</legend>
+        <div id="itemsContainer">
+          <!-- Item rows inserted dynamically -->
+        </div>
+        <button type="button" id="addItemBtn" class="btn-secondary">+ Add Item</button>
+      </fieldset>
+
+      <!-- Action Buttons -->
+      <div class="actions">
+        <button id="generateBtn" class="btn-primary">Generate Preview</button>
+      </div>
+    </main>
+
+    <!-- Document Preview Card -->
+    <section class="preview-section">
+      <h2>Document Preview</h2>
+      <div class="quote-document" id="quoteDocument">
+        <div class="doc-header">
+          <div class="brand-info">
+            <img id="logoPreview" class="logo-hide" alt="Company Logo">
+            <h2 id="docBusinessName">Your Business Name</h2>
+            <p id="docPaymentInfo"></p>
+          </div>
+          <div class="doc-meta">
+            <h1 class="doc-title">QUOTATION</h1>
+            <p><strong>Date:</strong> <span id="docDate">--/--/----</span></p>
+            <p><strong>Quote #:</strong> <span id="docQuoteNum">QQ-1001</span></p>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="doc-client">
+          <p><strong>Billed To:</strong> <span id="docClientName">Client Name</span></p>
+        </div>
+
+        <!-- Table Output -->
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody id="docTableBody">
+            <!-- Dynamic rows will render here -->
+          </tbody>
+        </table>
+
+        <!-- Summary Totals -->
+        <div class="doc-summary">
+          <p><span>Subtotal:</span> <strong id="docSubtotal">0.00</strong></p>
+          <p><span>Tax / VAT:</span> <strong id="docTax">0.00</strong></p>
+          <h3><span>Grand Total:</span> <strong id="docGrandTotal">0.00</strong></h3>
+        </div>
+      </div>
+
+      <!-- Export Actions -->
+      <div class="export-actions">
+        <button id="downloadPdfBtn" class="btn-success">📄 Download PDF</button>
+        <button id="whatsappBtn" class="btn-whatsapp">💬 Share via WhatsApp</button>
+      </div>
+    </section>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
