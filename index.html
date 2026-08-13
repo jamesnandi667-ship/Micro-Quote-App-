@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickQuote Express</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <h2>QuickQuote Express</h2>
+
+    <!-- Form Section -->
+    <div class="form-card">
+      <label for="clientInput">Client Name</label>
+      <input type="text" id="clientInput" placeholder="e.g. John Doe">
+
+      <label for="itemInput">Item / Service</label>
+      <input type="text" id="itemInput" placeholder="e.g. Graphic Design Services">
+
+      <label for="amountInput">Amount ($)</label>
+      <input type="number" id="amountInput" placeholder="e.g. 250">
+
+      <button id="generateBtn" type="button">Generate Preview</button>
+    </div>
+
+    <!-- Live Quote Box -->
+    <div id="quoteCard" class="quote-card">
+      <div class="quote-header">
+        <h3>QUOTATION</h3>
+        <span id="dateDisplay"></span>
+      </div>
+      <hr class="divider">
+      <div class="quote-details">
+        <p><strong>Billed To:</strong> <span id="clientDisplay">---</span></p>
+        <p><strong>Description:</strong> <span id="itemDisplay">---</span></p>
+        <div class="total-box">
+          <span>Total Due:</span>
+          <span class="total-amount">$<span id="amountDisplay">0.00</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output Preview Section -->
+    <div class="preview-card">
+      <h3>Generated Image Preview</h3>
+      <div id="previewArea">
+        <p class="placeholder-text">Your generated quote image will appear here.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
