@@ -8,7 +8,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2563eb">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1486/1486433.png">
-  <!-- html2pdf Library for crisp PDF Exports -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
@@ -37,7 +36,7 @@
         </div>
       </fieldset>
 
-      <!-- Client & Currency Info -->
+      <!-- Client & Currency Settings -->
       <fieldset class="card">
         <legend>Client & Settings</legend>
         <div class="form-group">
@@ -61,24 +60,19 @@
         </div>
       </fieldset>
 
-      <!-- Multi-Item Table -->
+      <!-- Dynamic Items -->
       <fieldset class="card">
         <legend>Items & Services</legend>
-        <div id="itemsContainer">
-          <!-- Item rows inserted dynamically -->
-        </div>
+        <div id="itemsContainer"></div>
         <button type="button" id="addItemBtn" class="btn-secondary">+ Add Item</button>
       </fieldset>
 
-      <!-- Action Buttons -->
-      <div class="actions">
-        <button id="generateBtn" class="btn-primary">Generate Preview</button>
-      </div>
+      <button id="generateBtn" class="btn-primary">Generate Quotation</button>
     </main>
 
     <!-- Document Preview Card -->
     <section class="preview-section">
-      <h2>Document Preview</h2>
+      <h2>Quotation Document</h2>
       <div class="quote-document" id="quoteDocument">
         <div class="doc-header">
           <div class="brand-info">
@@ -89,17 +83,13 @@
           <div class="doc-meta">
             <h1 class="doc-title">QUOTATION</h1>
             <p><strong>Date:</strong> <span id="docDate">--/--/----</span></p>
-            <p><strong>Quote #:</strong> <span id="docQuoteNum">QQ-1001</span></p>
           </div>
         </div>
-
         <hr>
-
         <div class="doc-client">
           <p><strong>Billed To:</strong> <span id="docClientName">Client Name</span></p>
         </div>
 
-        <!-- Table Output -->
         <table class="doc-table">
           <thead>
             <tr>
@@ -109,12 +99,9 @@
               <th>Total</th>
             </tr>
           </thead>
-          <tbody id="docTableBody">
-            <!-- Dynamic rows will render here -->
-          </tbody>
+          <tbody id="docTableBody"></tbody>
         </table>
 
-        <!-- Summary Totals -->
         <div class="doc-summary">
           <p><span>Subtotal:</span> <strong id="docSubtotal">0.00</strong></p>
           <p><span>Tax / VAT:</span> <strong id="docTax">0.00</strong></p>
@@ -122,12 +109,18 @@
         </div>
       </div>
 
-      <!-- Export Actions -->
       <div class="export-actions">
         <button id="downloadPdfBtn" class="btn-success">📄 Download PDF</button>
         <button id="whatsappBtn" class="btn-whatsapp">💬 Share via WhatsApp</button>
       </div>
     </section>
+
+    <!-- Monetization / Premium Section -->
+    <div class="premium-card">
+      <h3>⭐ Unlock Pro Business Suite</h3>
+      <p>Want custom cloud back-ups, client database management, and custom domain deployment?</p>
+      <button class="btn-gold" onclick="alert('Contact developer via WhatsApp or M-Pesa to activate Pro Custom License!')">Upgrade / Support App</button>
+    </div>
   </div>
 
   <script src="main.js"></script>
